@@ -11,7 +11,7 @@ import TaskManager from './components/TaskManager';
 
 function App() {
   const [theme, setTheme] = useState('dark');
-  const [studentName] = useState('Shreeja Patel');
+  const [studentName] = useState('Shreeja Upadhyay');
   const [skillsArray] = useState([
     'React.js 18',
     'React Router v6',

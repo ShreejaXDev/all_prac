@@ -7,7 +7,7 @@ function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [username, setUsername] = useState('octocat'); // public GitHub username
+  const [username, setUsername] = useState('ShreejaXDev'); // User's GitHub username
 
   const fetchRepos = () => {
     setLoading(true);
@@ -58,7 +58,8 @@ function ProjectsPage() {
             onChange={(e) => setUsername(e.target.value)}
             className="form-control-select"
           >
-            <option value="octocat">octocat (Official Demo)</option>
+            <option value="ShreejaXDev">ShreejaXDev (My Profile)</option>
+            <option value="octocat">octocat (GitHub Official)</option>
             <option value="facebook">facebook</option>
             <option value="google">google</option>
             <option value="invalid_user_test_xyz_123">Simulate Error State (404)</option>

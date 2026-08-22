@@ -64,7 +64,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               <label>Full Name</label>
               <input
                 type="text"
-                placeholder="Shreeja Patel"
+                placeholder="Shreeja Upadhyay"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required

@@ -61,7 +61,7 @@ function ContactPage() {
               type="text"
               id="name"
               name="name"
-              placeholder="e.g. Shreeja Patel"
+              placeholder="e.g. Shreeja Upadhyay"
               value={formData.name}
               onChange={handleChange}
               required

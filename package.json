@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "ITUE301 Advanced Web Development Frameworks - Practicals 1-7 Unified Suite",
   "scripts": {
+    "dev": "npm --prefix client run dev",
     "start": "node server/server.js",
-    "server": "node --watch server/server.js",
+    "server": "node server/server.js",
     "client": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build"
   }
