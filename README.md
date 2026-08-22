@@ -1,9 +1,6 @@
-# CHAROTAR UNIVERSITY OF SCIENCE AND TECHNOLOGY
-## Faculty of Technology and Engineering (FTE)
-### Department of Information Technology
 
 **Subject**: Advanced Web Development Frameworks (ITUE301) | **Semester**: 5th  
-**Student Name**: Shreeja Patel  
+**Student Name**: Shreeja Upadhyay 
 **Repository**: `portfolio-ShreejaXDev` / `all_prac`
 
 ---
