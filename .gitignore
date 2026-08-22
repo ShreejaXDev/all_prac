@@ -1,0 +1,19 @@
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Logs & Environment
+*.log
+.env
+server/.env
+.DS_Store
+
+# Build artifacts
+client/dist/
+client/dist-ssr/
+*.local
+
+# IDE
+.vscode/
+.idea/
