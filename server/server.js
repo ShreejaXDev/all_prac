@@ -50,12 +50,21 @@ app.use(notFoundHandler);
 // 8. Global Error Handling Middleware (MUST BE DEFINED LAST IN PIPELINE)
 app.use(globalErrorHandler);
 
-// Connect to MongoDB Atlas and start server
+// Connect to MongoDB and start server
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`====================================================`);
     console.log(`🚀 Express REST Server running on http://localhost:${PORT}`);
     console.log(`====================================================`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`⚠️ Port ${PORT} is already in use by another process.`);
+      console.log(`Tip: Stop the previous node process or change PORT in server/.env`);
+    } else {
+      console.error('Server error:', err);
+    }
   });
 });
 

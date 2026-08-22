@@ -13,14 +13,19 @@ let inMemoryTasks = [
 ];
 
 const isDbConnected = () => mongoose.connection.readyState === 1;
+const isValidObjectId = (id) => id && mongoose.Types.ObjectId.isValid(id);
 
 // GET /api/tasks - Retrieve all tasks
 router.get('/', async (req, res, next) => {
   try {
     if (isDbConnected()) {
-      const filter = req.user ? { $or: [{ user: req.user.id }, { user: null }] } : {};
-      const tasks = await Task.find(filter).sort({ createdAt: -1 });
-      return res.status(200).json(tasks);
+      const validUserId = (req.user && isValidObjectId(req.user.id)) ? req.user.id : null;
+      const filter = validUserId ? { $or: [{ user: validUserId }, { user: null }] } : {};
+      const dbTasks = await Task.find(filter).sort({ createdAt: -1 });
+      // If DB has tasks, return DB tasks; otherwise if DB is empty, return initial demo tasks
+      if (dbTasks.length > 0) {
+        return res.status(200).json(dbTasks);
+      }
     }
     return res.status(200).json(inMemoryTasks);
   } catch (err) {
@@ -32,12 +37,11 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (isDbConnected()) {
+    if (isDbConnected() && isValidObjectId(id)) {
       const task = await Task.findById(id);
-      if (!task) {
-        return res.status(404).json({ error: `Task not found with ID ${id}` });
+      if (task) {
+        return res.status(200).json(task);
       }
-      return res.status(200).json(task);
     }
 
     const found = inMemoryTasks.find(t => t.id === id);
@@ -60,12 +64,13 @@ router.post('/', async (req, res, next) => {
     }
 
     if (isDbConnected()) {
+      const validUserId = (req.user && isValidObjectId(req.user.id)) ? req.user.id : null;
       const newTask = await Task.create({
-        title,
-        description,
+        title: title.trim(),
+        description: description ? description.trim() : '',
         priority: priority || 'medium',
         completed: Boolean(completed),
-        user: req.user ? req.user.id : null
+        user: validUserId
       });
       return res.status(201).json(newTask);
     }
@@ -92,33 +97,31 @@ router.put('/:id', async (req, res, next) => {
     const { id } = req.params;
     const { title, description, completed, priority } = req.body;
 
-    if (isDbConnected()) {
+    if (isDbConnected() && isValidObjectId(id)) {
       const updatedTask = await Task.findByIdAndUpdate(
         id,
         { title, description, completed, priority },
         { new: true, runValidators: true }
       );
-      if (!updatedTask) {
-        return res.status(404).json({ error: `Task not found with ID ${id}` });
+      if (updatedTask) {
+        return res.status(200).json(updatedTask);
       }
-      return res.status(200).json(updatedTask);
     }
 
-    // In-memory update
+    // Fallback in-memory update
     const index = inMemoryTasks.findIndex(t => t.id === id);
-    if (index === -1) {
-      return res.status(404).json({ error: `Task not found with ID ${id}` });
+    if (index !== -1) {
+      inMemoryTasks[index] = {
+        ...inMemoryTasks[index],
+        title: title !== undefined ? title : inMemoryTasks[index].title,
+        description: description !== undefined ? description : inMemoryTasks[index].description,
+        completed: completed !== undefined ? completed : inMemoryTasks[index].completed,
+        priority: priority !== undefined ? priority : inMemoryTasks[index].priority
+      };
+      return res.status(200).json(inMemoryTasks[index]);
     }
 
-    inMemoryTasks[index] = {
-      ...inMemoryTasks[index],
-      title: title !== undefined ? title : inMemoryTasks[index].title,
-      description: description !== undefined ? description : inMemoryTasks[index].description,
-      completed: completed !== undefined ? completed : inMemoryTasks[index].completed,
-      priority: priority !== undefined ? priority : inMemoryTasks[index].priority
-    };
-
-    return res.status(200).json(inMemoryTasks[index]);
+    return res.status(404).json({ error: `Task not found with ID ${id}` });
   } catch (err) {
     next(err);
   }
@@ -129,21 +132,20 @@ router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    if (isDbConnected()) {
+    if (isDbConnected() && isValidObjectId(id)) {
       const deletedTask = await Task.findByIdAndDelete(id);
-      if (!deletedTask) {
-        return res.status(404).json({ error: `Task not found with ID ${id}` });
+      if (deletedTask) {
+        return res.status(200).json({ message: 'Task deleted successfully', id });
       }
-      return res.status(200).json({ message: 'Task deleted successfully', id });
     }
 
     const index = inMemoryTasks.findIndex(t => t.id === id);
-    if (index === -1) {
-      return res.status(404).json({ error: `Task not found with ID ${id}` });
+    if (index !== -1) {
+      inMemoryTasks.splice(index, 1);
+      return res.status(200).json({ message: 'Task deleted successfully', id });
     }
 
-    inMemoryTasks.splice(index, 1);
-    return res.status(200).json({ message: 'Task deleted successfully', id });
+    return res.status(404).json({ error: `Task not found with ID ${id}` });
   } catch (err) {
     next(err);
   }
